@@ -1,8 +1,19 @@
-name := "booleval"
+ThisBuild / scalaVersion := "2.12.7"
 
-version := "0.1"
+ThisBuild / organization := "com.example"
+ThisBuild / version := "0.1-SNAPSHOT"
+ThisBuild / name := "booleval"
 
-scalaVersion := "2.12.7"
+lazy val core = (project in file("core"))
+  .settings(
+    name := "core",
+    libraryDependencies += "com.typesafe.play" %% "play-json" % "2.6.10",
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % Test,
+  )
 
-libraryDependencies += "com.typesafe.play" %% "play-json" % "2.6.10"
-libraryDependencies += "org.scalatest" % "scalatest_2.12" % "3.0.5" % "test"
+lazy val web = (project in file("web"))
+  .dependsOn(core)
+
+
+lazy val root = (project in file("."))
+  .aggregate(core, web)

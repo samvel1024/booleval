@@ -6,7 +6,7 @@ import play.api.libs.json.Json
 class SerializerTest extends FunSuite {
 
   test("Five level tree") {
-    val be =  BooleanExpressionGenerator.generate(15, Array[String]("a", "b"))
+    val be =  BooleanExpressionGenerator.generate(15, Array[String]("a", "b"), useConstants = true)
     val json = Serial.serialize(be)
     val be2 = Serial.deserialize(json)
 

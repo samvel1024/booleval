@@ -12,15 +12,19 @@ object BooleanExpressionGenerator {
     switch.apply(Random.nextInt(size))
   }
 
-  def generate(remaining: Int, varNames: Array[String]): BooleanExpression = {
+  def generate(remaining: Int, varNames: Array[String], useConstants: Boolean): BooleanExpression = {
     if (remaining == 0)
-      return pickRandomF(3, {
+      return pickRandomF(if (useConstants) {
+        3
+      } else {
+        1
+      }, {
         case 0 => Variable(pickRandom(varNames))
         case 1 => True
         case 2 => False
       })
-    val lhs = generate(remaining - 1, varNames)
-    val rhs = generate(remaining - 1, varNames)
+    val lhs = generate(remaining - 1, varNames, useConstants)
+    val rhs = generate(remaining - 1, varNames, useConstants)
     pickRandomF(2, {
       case 0 => Or
       case 1 => And

@@ -2,23 +2,35 @@ package com.booleval
 
 sealed trait BooleanExpression {
 
-  type Evaluation = String => Boolean
+  type Evaluation = String => Option[BooleanConstant]
 
-  def evaluate(v: Evaluation): Boolean = this match {
-    case True => true
-    case False => false
-    case Variable(symbol) => v.apply(symbol);
-    case Not(e) => !e.evaluate(v);
-    case Or(a, b) => a.evaluate(v) || b.evaluate(v);
-    case And(a, b) => a.evaluate(v) && b.evaluate(v);
+  def evaluate(v: Evaluation): BooleanConstant = this match {
+    case True => True
+    case False => False
+    case Variable(symbol) => v.apply(symbol) match {
+      case Some(value) => value
+      case None => throw new RuntimeException(s"No variable value provided for $symbol")
+    }
+    case Not(e) => e.evaluate(v) match {
+      case True => False
+      case False => True
+    }
+    case Or(a, b) => (a.evaluate(v), b.evaluate(v)) match {
+      case (False, False) => False
+      case _ => True
+    }
+    case And(a, b) => (a.evaluate(v) , b.evaluate(v)) match {
+      case (True, True) => True
+      case _ => False
+    }
   }
 
-  def prettyPrint(): String = this match {
+  override def toString: String = this match {
     case False => "0"
     case True => "1"
-    case Or(l, r) => s"(${l prettyPrint()} | ${r prettyPrint()})"
-    case And(l, r) => s"(${l prettyPrint()} & ${r prettyPrint()})"
-    case Not(e) => s"!${e prettyPrint()}"
+    case Or(l, r) => s"(${l toString()} | ${r toString()})"
+    case And(l, r) => s"(${l toString()} & ${r toString()})"
+    case Not(e) => s"!${e toString()}"
     case Variable(v) => v
   }
 
@@ -38,9 +50,13 @@ object BooleanExpressionImplicit {
 
 }
 
-case object True extends BooleanExpression
+abstract class BooleanConstant(value: Boolean) extends BooleanExpression{
+  def toBoolean: Boolean = value
+}
 
-case object False extends BooleanExpression
+case object True extends BooleanConstant(true)
+
+case object False extends BooleanConstant(false)
 
 case class Variable(symbol: String) extends BooleanExpression
 

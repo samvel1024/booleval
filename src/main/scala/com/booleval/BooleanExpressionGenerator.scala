@@ -14,11 +14,7 @@ object BooleanExpressionGenerator {
 
   def generate(remaining: Int, varNames: Array[String], useConstants: Boolean): BooleanExpression = {
     if (remaining == 0)
-      return pickRandomF(if (useConstants) {
-        3
-      } else {
-        1
-      }, {
+      return pickRandomF(if (useConstants) 3 else 1, {
         case 0 => Variable(pickRandom(varNames))
         case 1 => True
         case 2 => False

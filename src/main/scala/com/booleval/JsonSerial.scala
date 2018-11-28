@@ -1,9 +1,10 @@
 package com.booleval
 
+import play.api.libs.json.Json.toJson
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 
-object Serial {
+object JsonSerial {
 
   private type BiOperatorFactory[T] = (BooleanExpression, BooleanExpression) => T
 
@@ -11,20 +12,13 @@ object Serial {
     case True => Json.obj("type" -> "true")
     case False => Json.obj("type" -> "false")
     case Variable(symbol) => Json.obj("type" -> "var", "symbol" -> symbol)
-    case Not(exp) => Json.obj("type" -> "not", "exp" -> Json.toJson(exp))
-    case Or(lhs, rhs) => Json.obj("type" -> "or", "lhs" -> Json.toJson(lhs), "rhs" -> Json.toJson(rhs))
-    case And(lhs, rhs) => Json.obj("type" -> "and", "lhs" -> Json.toJson(lhs), "rhs" -> Json.toJson(rhs))
+    case Not(exp) => Json.obj("type" -> "not", "exp" -> toJson(exp))
+    case Or(lhs, rhs) => Json.obj("type" -> "or", "lhs" -> toJson(lhs), "rhs" -> toJson(rhs))
+    case And(lhs, rhs) => Json.obj("type" -> "and", "lhs" -> toJson(lhs), "rhs" -> toJson(rhs))
   }
 
-  private def biOpReadsFactory[T](factory: BiOperatorFactory[T]): Reads[T] = {
-    json: JsValue =>
-      (JsPath \ "lhs").read[JsObject].reads(json) match {
-        case JsSuccess(lhs, _) => (JsPath \ "rhs").read[JsObject].reads(json) match {
-          case JsSuccess(rhs, _) => JsSuccess(factory.apply(lhs.validate[BooleanExpression].get, rhs.validate[BooleanExpression].get))
-          case JsError(err) => JsError(err)
-        }
-        case JsError(err) => JsError(err)
-      }
+  def serialize(be: BooleanExpression): JsValue = {
+    toJson(be)
   }
 
 
@@ -55,12 +49,19 @@ object Serial {
     case JsError(errors) => JsError(errors)
   }
 
-  def serialize(be: BooleanExpression): JsValue = {
-    Json.toJson(be)
-  }
-
   def deserialize(js: JsValue): BooleanExpression = {
     js.validate[BooleanExpression].get
+  }
+
+  private def biOpReadsFactory[T](factory: BiOperatorFactory[T]): Reads[T] = {
+    json: JsValue =>
+      (JsPath \ "lhs").read[JsObject].reads(json) match {
+        case JsSuccess(lhs, _) => (JsPath \ "rhs").read[JsObject].reads(json) match {
+          case JsSuccess(rhs, _) => JsSuccess(factory.apply(lhs.validate[BooleanExpression].get, rhs.validate[BooleanExpression].get))
+          case JsError(err) => JsError(err)
+        }
+        case JsError(err) => JsError(err)
+      }
   }
 
 }

@@ -10,4 +10,5 @@ lazy val root = (project in file("."))
     name := "booleval",
     libraryDependencies += "com.typesafe.play" %% "play-json" % "2.6.10",
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % Test,
+    libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.1"
   )

@@ -19,7 +19,7 @@ sealed trait BooleanExpression {
       case (False, False) => False
       case _ => True
     }
-    case And(a, b) => (a.evaluate(v) , b.evaluate(v)) match {
+    case And(a, b) => (a.evaluate(v), b.evaluate(v)) match {
       case (True, True) => True
       case _ => False
     }
@@ -50,13 +50,17 @@ object BooleanExpressionImplicit {
 
 }
 
-abstract class BooleanConstant(value: Boolean) extends BooleanExpression{
-  def toBoolean: Boolean = value
+sealed trait BooleanConstant {
+  def toBoolean: Boolean
 }
 
-case object True extends BooleanConstant(true)
+case object True extends BooleanExpression with BooleanConstant {
+  override def toBoolean: Boolean = true
+}
 
-case object False extends BooleanConstant(false)
+case object False extends BooleanExpression with BooleanConstant {
+  override def toBoolean: Boolean = false
+}
 
 case class Variable(symbol: String) extends BooleanExpression
 

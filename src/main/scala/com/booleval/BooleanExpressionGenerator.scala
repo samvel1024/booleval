@@ -8,7 +8,7 @@ object BooleanExpressionGenerator {
     arr.apply(Random.nextInt(arr.length))
   }
 
-  def pickRandomF[T](size: Int, switch: Int => T) = {
+  def pickRandomF[T](size: Int, switch: Int => T): T = {
     switch.apply(Random.nextInt(size))
   }
 

@@ -19,7 +19,7 @@ class SerializationTest extends FunSuite {
 
   val lexerAssert: BooleanExpression => Unit = parsingAssertion(
     e => e.toString,
-    s => BooleanExpressionParser.parse(s))
+    s => Parser.parse(s))
 
   val smallCases = List(!(~"a"), !True, !False, False, True, ~"b", True | False, ~"a" & !(~"b"), False & !True)
 
@@ -32,12 +32,12 @@ class SerializationTest extends FunSuite {
   }
 
   test("Test parser (random 10-depth)"){
-    val be =  BooleanExpressionGenerator.generate(10, Array("a", "b", "c", "d", "e", "f"), useConstants = true)
+    val be =  Generator.generate(10, Array("a", "b", "c", "d", "e", "f"), useConstants = true)
     lexerAssert(be)
   }
 
   test("Test json (random 10-depth)"){
-    val be =  BooleanExpressionGenerator.generate(1, Array("a", "b"), useConstants = true)
+    val be =  Generator.generate(1, Array("a", "b"), useConstants = true)
     jsonAssert(be)
   }
 

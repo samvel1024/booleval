@@ -2,7 +2,7 @@ package com.booleval
 
 import scala.util.Random
 
-object BooleanExpressionGenerator {
+object Generator {
 
   def pickRandom[T](arr: Array[T]): T = {
     arr.apply(Random.nextInt(arr.length))
@@ -26,5 +26,10 @@ object BooleanExpressionGenerator {
       case 1 => And
     }).apply(lhs, rhs)
   }
+
+  def generate(count: Int, remaining: Int, varNames: Array[String], useConstants: Boolean): Iterator[BooleanExpression] = {
+    Iterator.tabulate(count)(_ => generate(remaining, varNames, useConstants))
+  }
+
 
 }

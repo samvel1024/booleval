@@ -2,7 +2,7 @@ package com.booleval
 
 import scala.util.parsing.combinator.JavaTokenParsers
 
-object BooleanExpressionParser extends JavaTokenParsers {
+object Parser extends JavaTokenParsers {
 
   def parse(str: String): BooleanExpression =
     parseAll(expression, str) match {

@@ -3,6 +3,9 @@ package com.booleval
 sealed trait BooleanExpression {
 
   type Evaluation = String => Option[BooleanConstant]
+  type VarSpace = Set[String]
+  type TruthTable = Set[VarSpace]
+
 
   def evaluate(v: Evaluation): BooleanConstant = this match {
     case True => True
@@ -28,11 +31,34 @@ sealed trait BooleanExpression {
   override def toString: String = this match {
     case False => "0"
     case True => "1"
-    case Or(l, r) => s"(${l toString()} | ${r toString()})"
-    case And(l, r) => s"(${l toString()} & ${r toString()})"
+    case Or(l, r) => s"(${l toString()}|${r toString()})"
+    case And(l, r) => s"(${l toString()}&${r toString()})"
     case Not(e) => s"!${e toString()}"
     case Variable(v) => v
   }
+
+  private def collectVarSpace(set: VarSpace): VarSpace = this match {
+    case Variable(name) => set + name
+    case And(l, r) => r.collectVarSpace(l.collectVarSpace(set))
+    case Or(l, r) => r.collectVarSpace(l.collectVarSpace(set))
+    case Not(e) => e.collectVarSpace(set)
+    case _ => set
+  }
+
+  private def truthTable(variables: VarSpace): TruthTable = {
+    val trueVars = variables.subsets()
+    trueVars
+      .filter(set => evaluate(variable => if (set.contains(variable)) Option(True) else Option(False)).toBoolean)
+      .toSet
+  }
+
+  def truthTable(): TruthTable = truthTable(collectVarSpace(Set()))
+
+  def equivalentTo(exp: BooleanExpression): Boolean = {
+    val unionVarSpace = exp.collectVarSpace(Set()) ++ this.collectVarSpace(Set())
+    exp.truthTable(unionVarSpace) == this.truthTable(unionVarSpace)
+  }
+
 
   def |(v: BooleanExpression) = Or(this, v)
 

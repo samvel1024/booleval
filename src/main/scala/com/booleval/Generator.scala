@@ -12,23 +12,29 @@ object Generator {
     switch.apply(Random.nextInt(size))
   }
 
-  def generate(remaining: Int, varNames: Array[String], useConstants: Boolean): BooleanExpression = {
-    if (remaining == 0)
+  /**
+    * @param height       Height of the expression tree
+    * @param varNames     Names of variables that will be used
+    * @param useConstants If constants can appear in leaves
+    * @return A newly generated tree with given height
+    */
+  def generate(height: Int, varNames: Array[String], useConstants: Boolean): BooleanExpression = {
+    if (height == 0)
       return pickRandomF(if (useConstants) 3 else 1, {
         case 0 => Variable(pickRandom(varNames))
         case 1 => True
         case 2 => False
       })
-    val lhs = generate(remaining - 1, varNames, useConstants)
-    val rhs = generate(remaining - 1, varNames, useConstants)
+    val lhs = generate(height - 1, varNames, useConstants)
+    val rhs = generate(height - 1, varNames, useConstants)
     pickRandomF(2, {
       case 0 => Or
       case 1 => And
     }).apply(lhs, rhs)
   }
 
-  def generate(count: Int, remaining: Int, varNames: Array[String], useConstants: Boolean): Iterator[BooleanExpression] = {
-    Iterator.tabulate(count)(_ => generate(remaining, varNames, useConstants))
+  def generate(useConstants: Boolean, varNames: Array[String])(height: Int, count: Int): Iterator[BooleanExpression] = {
+    Iterator.tabulate(count)(_ => generate(height, varNames, useConstants))
   }
 
 

@@ -4,6 +4,9 @@ import scala.util.parsing.combinator.JavaTokenParsers
 
 object Parser extends JavaTokenParsers {
 
+  /**
+    * Semantically the inverse function of BooleanExpression.toString
+    */
   def parse(str: String): BooleanExpression =
     parseAll(expression, str) match {
       case Success(result, _) => result

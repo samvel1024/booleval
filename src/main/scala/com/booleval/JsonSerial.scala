@@ -21,7 +21,6 @@ object JsonSerial {
     toJson(be)
   }
 
-
   private implicit lazy val readsAnd: Reads[And] = biOpReadsFactory(And)
 
   private implicit lazy val readsOr: Reads[Or] = biOpReadsFactory(Or)

@@ -6,7 +6,11 @@ sealed trait BooleanExpression {
   type VarSpace = Set[String]
   type TruthTable = Set[VarSpace]
 
-
+  /**
+    * @param v values of variables
+    * @return True or False
+    * @throws RuntimeException if there exists a variable without value mapping in v
+    */
   def evaluate(v: Evaluation): BooleanConstant = this match {
     case True => True
     case False => False
@@ -37,6 +41,22 @@ sealed trait BooleanExpression {
     case Variable(v) => v
   }
 
+  def truthTable(): TruthTable = truthTable(collectVarSpace(Set()))
+
+  def equivalentTo(exp: BooleanExpression): Boolean = {
+    val unionVarSpace = exp.collectVarSpace(Set()) ++ this.collectVarSpace(Set())
+    exp.truthTable(unionVarSpace) == this.truthTable(unionVarSpace)
+  }
+
+  def |(v: BooleanExpression) = Or(this, v)
+
+  def &(v: BooleanExpression) = And(this, v)
+
+  def unary_! = Not(this)
+
+  /**
+    * @return Set of all variables in this expression
+    */
   private def collectVarSpace(set: VarSpace): VarSpace = this match {
     case Variable(name) => set + name
     case And(l, r) => r.collectVarSpace(l.collectVarSpace(set))
@@ -45,26 +65,16 @@ sealed trait BooleanExpression {
     case _ => set
   }
 
+  /**
+    * @param variables - has to be a super set of the set returned from collectVarSpace
+    * @return All sets of variables which (by having value True) will satisfy the expression
+    */
   private def truthTable(variables: VarSpace): TruthTable = {
     val trueVars = variables.subsets()
     trueVars
       .filter(set => evaluate(variable => if (set.contains(variable)) Option(True) else Option(False)).toBoolean)
       .toSet
   }
-
-  def truthTable(): TruthTable = truthTable(collectVarSpace(Set()))
-
-  def equivalentTo(exp: BooleanExpression): Boolean = {
-    val unionVarSpace = exp.collectVarSpace(Set()) ++ this.collectVarSpace(Set())
-    exp.truthTable(unionVarSpace) == this.truthTable(unionVarSpace)
-  }
-
-
-  def |(v: BooleanExpression) = Or(this, v)
-
-  def &(v: BooleanExpression) = And(this, v)
-
-  def unary_! = Not(this)
 
 }
 

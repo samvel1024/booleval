@@ -19,6 +19,9 @@ class BooleanExpressionTest extends FunSuite {
     }
   }
 
-
+  test("Previously failed 1") {
+    ((~"a" | (~"c" | ~"d")) & (~"b" | (~"c" | ~"d"))).equivalentTo(
+      (~"a" & ~"b") | (~"c" | ~"d"))
+  }
 
 }

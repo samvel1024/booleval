@@ -1,6 +1,6 @@
 ThisBuild / scalaVersion := "2.12.7"
 
-ThisBuild / organization := "com.example"
+ThisBuild / organization := "com.booleval"
 ThisBuild / version := "0.1-SNAPSHOT"
 ThisBuild / name := "booleval"
 
